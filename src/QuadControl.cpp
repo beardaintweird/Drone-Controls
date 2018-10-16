@@ -76,13 +76,9 @@ VehicleCommand QuadControl::GenerateMotorCommands(float collThrustCmd, V3F momen
     float F2 = (collThrustCmd + momentCmd.x/l - momentCmd.y/l + momentCmd.z/kappa) / 4.f;
     float F3 = (collThrustCmd - momentCmd.x/l - momentCmd.y/l - momentCmd.z/kappa) / 4.f;
     
-    // front left
     cmd.desiredThrustsN[0] = CONSTRAIN(F0, minMotorThrust, maxMotorThrust);
-    // front right
     cmd.desiredThrustsN[1] = CONSTRAIN(F1, minMotorThrust, maxMotorThrust);
-    // rear left
     cmd.desiredThrustsN[2] = CONSTRAIN(F2, minMotorThrust, maxMotorThrust);
-    // rear right
     cmd.desiredThrustsN[3] = CONSTRAIN(F3, minMotorThrust, maxMotorThrust);
     
   /////////////////////////////// END STUDENT CODE ////////////////////////////
@@ -148,15 +144,13 @@ V3F QuadControl::RollPitchControl(V3F accelCmd, Quaternion<float> attitude, floa
     float R23 = R(1, 2);
     float R33 = R(2, 2);
     
-    //  - collThrustCmd is a force in Newtons! You'll likely want to convert it to acceleration first
-    
     float acc = collThrustCmd / mass;
     V3F b = V3F(R13, R23, 0.f);
     float acc_x = accelCmd.x / -acc;
     float acc_y = accelCmd.y / -acc;
     V3F b_c = V3F(acc_x, acc_y, 0.f);
     b_c.constrain(-maxTiltAngle, maxTiltAngle);
-    //  - you'll need the roll/pitch gain kpBank
+
     V3F b_c_dot = kpBank * (b_c - b);
     
     pqrCmd.x = (R21 * b_c_dot.x - R11 * b_c_dot.y) / R33;
@@ -195,7 +189,7 @@ float QuadControl::AltitudeControl(float posZCmd, float velZCmd, float posZ, flo
     float R22 = R(2, 2);
     velZCmd += kpPosZ * (posZCmd - posZ);
     integratedAltitudeError += (posZCmd - posZ) * dt;
-    //  - maxAscentRate and maxDescentRate are maximum vertical speeds. Note they're both >=0!
+
     velZCmd = CONSTRAIN(velZCmd, -maxAscentRate, maxDescentRate);
     accelZCmd += KiPosZ * integratedAltitudeError + kpVelZ * (velZCmd - velZ);
     thrust = mass * ((float)CONST_GRAVITY - accelZCmd) / R22;
